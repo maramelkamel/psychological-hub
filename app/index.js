@@ -1,5 +1,3 @@
-
-
 import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -22,7 +20,7 @@ export default function HomeScreen() {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
-      setLoading(false); //  always show page, no redirect
+      setLoading(false);
     };
 
     checkUser();
@@ -38,7 +36,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#C41E3A" />
+      <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
 
       <View style={styles.header}>
         <View style={styles.navbar}>
@@ -51,14 +49,11 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.navItem}>
             <Text style={styles.navText}>Details</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem}>
-
-           <Link href="/profile-setup" asChild>
-               <TouchableOpacity style={styles.navItem}>
-                <Text style={styles.navText}>Profile</Text>
-                </TouchableOpacity>
-            </Link>
-          </TouchableOpacity>
+          <Link href="/profile-setup" asChild>
+            <TouchableOpacity style={styles.navItem}>
+              <Text style={styles.navText}>Profile</Text>
+            </TouchableOpacity>
+          </Link>
         </View>
       </View>
 
@@ -92,7 +87,7 @@ export default function HomeScreen() {
         </View>
 
         {user && (
-          <Text style={{ color: 'white', marginTop: 20 }}>
+          <Text style={{ color: '#004E64', marginTop: 20 }}>
             Logged in as: {user.email}
           </Text>
         )}
@@ -109,16 +104,16 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#C41E3A',
+    backgroundColor: '#F7F9FC',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#C41E3A',
+    backgroundColor: '#F7F9FC',
   },
   loadingText: {
-    color: 'white',
+    color: '#004E64',
     fontSize: 18,
     fontWeight: '600',
   },
@@ -130,7 +125,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#E6EEF1',
     borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 10,
@@ -140,7 +135,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   navText: {
-    color: 'white',
+    color: '#004E64',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -156,21 +151,21 @@ const styles = StyleSheet.create({
   },
   logo: {
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: '#DDEAF0',
     borderRadius: 20,
     paddingHorizontal: 30,
     paddingVertical: 20,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: '#C3DCE3',
   },
   logoText: {
-    color: 'white',
+    color: '#004E64',
     fontSize: 32,
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   logoSubtext: {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#5A5A5E',
     fontSize: 16,
     fontWeight: '500',
     marginTop: 5,
@@ -180,7 +175,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   welcomeTitle: {
-    color: 'white',
+    color: '#1C1C1E',
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -188,7 +183,7 @@ const styles = StyleSheet.create({
     lineHeight: 34,
   },
   welcomeSubtitle: {
-    color: 'rgba(255, 255, 255, 0.85)',
+    color: '#5A5A5E',
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 24,
@@ -199,26 +194,24 @@ const styles = StyleSheet.create({
     gap: 15,
   },
   primaryButton: {
-    backgroundColor: 'white',
+    backgroundColor: '#004E64',
     borderRadius: 30,
     paddingVertical: 16,
     paddingHorizontal: 40,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 8,
   },
   primaryButtonText: {
-    color: '#C41E3A',
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
   },
   secondaryButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: 'white',
+    backgroundColor: '#FFA500',
     borderRadius: 30,
     paddingVertical: 16,
     paddingHorizontal: 40,
@@ -235,12 +228,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#5A5A5E',
     fontSize: 12,
     textAlign: 'center',
   },
   footerSubtext: {
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: '#A9A9AE',
     fontSize: 10,
     textAlign: 'center',
     marginTop: 2,

@@ -1,4 +1,3 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -15,7 +14,6 @@ import {
   View
 } from 'react-native';
 import { supabase } from '../services/supabase';
-
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -65,8 +63,8 @@ export default function LoginScreen() {
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#C41E3A" />
-      <View style={styles.gradient}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
+      <View style={styles.background}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.logoContainer}>
             <View style={styles.logo}>
@@ -81,11 +79,11 @@ export default function LoginScreen() {
 
             <View style={styles.inputContainer}>
               <View style={styles.inputWrapper}>
-                <Ionicons name="mail-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
+                <Ionicons name="mail-outline" size={20} color="#004E64" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Email Address"
-                  placeholderTextColor="#999"
+                  placeholderTextColor="#A9A9AE"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -95,11 +93,11 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.inputWrapper}>
-                <Ionicons name="lock-closed-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
+                <Ionicons name="lock-closed-outline" size={20} color="#004E64" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Password"
-                  placeholderTextColor="#999"
+                  placeholderTextColor="#A9A9AE"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
@@ -153,9 +151,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  gradient: {
+  background: {
     flex: 1,
-    backgroundColor: '#C41E3A', // Solid color instead of gradient
+    backgroundColor: '#F7F9FC',
   },
   scrollContent: {
     flexGrow: 1,
@@ -169,45 +167,45 @@ const styles = StyleSheet.create({
   },
   logo: {
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: '#DDEAF0',
     borderRadius: 20,
     paddingHorizontal: 30,
     paddingVertical: 20,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: '#C3DCE3',
   },
   logoText: {
-    color: 'white',
+    color: '#004E64',
     fontSize: 28,
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   logoSubtext: {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#5A5A5E',
     fontSize: 14,
     fontWeight: '500',
     marginTop: 5,
   },
   formContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderRadius: 25,
     padding: 30,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.1,
     shadowRadius: 20,
-    elevation: 20,
+    elevation: 10,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#1C1C1E',
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 15,
+    color: '#5A5A5E',
     textAlign: 'center',
     marginBottom: 30,
   },
@@ -217,39 +215,39 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FFFFFF',
     borderRadius: 15,
     marginBottom: 15,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: '#D9E2EC',
   },
   inputIcon: {
     marginRight: 10,
   },
   input: {
     flex: 1,
-    paddingVertical: 15,
+    paddingVertical: 14,
     fontSize: 16,
-    color: '#333',
+    color: '#1C1C1E',
   },
   eyeIcon: {
     padding: 5,
   },
   loginButton: {
-    backgroundColor: '#C41E3A',
+    backgroundColor: '#004E64',
     borderRadius: 15,
     paddingVertical: 16,
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#C41E3A',
+    shadowColor: '#004E64',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   loginButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#A9A9AE',
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -266,11 +264,11 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#D9E2EC',
   },
   dividerText: {
     marginHorizontal: 15,
-    color: '#666',
+    color: '#5A5A5E',
     fontSize: 14,
   },
   registerContainer: {
@@ -279,11 +277,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   registerText: {
-    color: '#666',
+    color: '#5A5A5E',
     fontSize: 16,
   },
   registerLink: {
-    color: '#C41E3A',
+    color: '#FFA500',
     fontSize: 16,
     fontWeight: '600',
   },

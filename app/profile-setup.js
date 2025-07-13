@@ -1,4 +1,3 @@
-// app/profile-setup.js
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
@@ -13,7 +12,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-
   View,
 } from 'react-native';
 import { supabase } from '../services/supabase';
@@ -98,7 +96,7 @@ export default function ProfileSetupScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#C41E3A" />
+      <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Complete Your Profile</Text>
@@ -108,72 +106,30 @@ export default function ProfileSetupScreen() {
         <View style={styles.formContainer}>
           <Text style={styles.sectionTitle}>Basic Information</Text>
 
-          {/* First Name */}
-          <View style={styles.inputWrapper}>
-            <Ionicons name="person-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="First Name *"
-              placeholderTextColor="#999"
-              value={formData.firstName}
-              onChangeText={(text) => updateFormData('firstName', text)}
-            />
-          </View>
-
-          {/* Last Name */}
-          <View style={styles.inputWrapper}>
-            <Ionicons name="person-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Last Name *"
-              placeholderTextColor="#999"
-              value={formData.lastName}
-              onChangeText={(text) => updateFormData('lastName', text)}
-            />
-          </View>
-
-          {/* Position */}
-          <View style={styles.inputWrapper}>
-            <Ionicons name="briefcase-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Position *"
-              placeholderTextColor="#999"
-              value={formData.position}
-              onChangeText={(text) => updateFormData('position', text)}
-            />
-          </View>
-
-          {/* Department */}
-          <View style={styles.inputWrapper}>
-            <Ionicons name="business-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Department *"
-              placeholderTextColor="#999"
-              value={formData.department}
-              onChangeText={(text) => updateFormData('department', text)}
-            />
-          </View>
-
-          {/* Years at company */}
-          <View style={styles.inputWrapper}>
-            <Ionicons name="calendar-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Years at Ettijari"
-              placeholderTextColor="#999"
-              value={formData.yearsAtCompany}
-              onChangeText={(text) => updateFormData('yearsAtCompany', text)}
-              keyboardType="numeric"
-            />
-          </View>
+          {[
+            { key: 'firstName', icon: 'person-outline', placeholder: 'First Name *' },
+            { key: 'lastName', icon: 'person-outline', placeholder: 'Last Name *' },
+            { key: 'position', icon: 'briefcase-outline', placeholder: 'Position *' },
+            { key: 'department', icon: 'business-outline', placeholder: 'Department *' },
+            { key: 'yearsAtCompany', icon: 'calendar-outline', placeholder: 'Years at Ettijari', keyboard: 'numeric' },
+          ].map(({ key, icon, placeholder, keyboard }) => (
+            <View style={styles.inputWrapper} key={key}>
+              <Ionicons name={icon} size={20} color="#004E64" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder={placeholder}
+                placeholderTextColor="#999"
+                value={formData[key]}
+                onChangeText={(text) => updateFormData(key, text)}
+                keyboardType={keyboard || 'default'}
+              />
+            </View>
+          ))}
 
           <Text style={styles.sectionTitle}>Personal Information</Text>
 
-          {/* Marital Status */}
           <View style={styles.pickerWrapper}>
-            <Ionicons name="heart-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
+            <Ionicons name="heart-outline" size={20} color="#004E64" style={styles.inputIcon} />
             <Picker
               selectedValue={formData.maritalStatus}
               onValueChange={(value) => updateFormData('maritalStatus', value)}
@@ -186,20 +142,19 @@ export default function ProfileSetupScreen() {
             </Picker>
           </View>
 
-          {/* Has Children */}
           <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Do you have children?</Text>
             <Switch
               value={formData.hasChildren}
               onValueChange={(value) => updateFormData('hasChildren', value)}
-              trackColor={{ false: '#ccc', true: '#C41E3A' }}
+              trackColor={{ false: '#ccc', true: '#004E64' }}
               thumbColor={formData.hasChildren ? '#fff' : '#f4f3f4'}
             />
           </View>
 
           {formData.hasChildren && (
             <View style={styles.inputWrapper}>
-              <Ionicons name="people-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
+              <Ionicons name="people-outline" size={20} color="#004E64" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Number of children"
@@ -211,9 +166,8 @@ export default function ProfileSetupScreen() {
             </View>
           )}
 
-          {/* Sleep hours */}
           <View style={styles.inputWrapper}>
-            <Ionicons name="moon-outline" size={20} color="#C41E3A" style={styles.inputIcon} />
+            <Ionicons name="moon-outline" size={20} color="#004E64" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Hours of sleep per night"
@@ -229,7 +183,7 @@ export default function ProfileSetupScreen() {
             <Switch
               value={formData.sleepWellOrganized}
               onValueChange={(value) => updateFormData('sleepWellOrganized', value)}
-              trackColor={{ false: '#ccc', true: '#C41E3A' }}
+              trackColor={{ false: '#ccc', true: '#004E64' }}
               thumbColor={formData.sleepWellOrganized ? '#fff' : '#f4f3f4'}
             />
           </View>
@@ -237,29 +191,17 @@ export default function ProfileSetupScreen() {
           <Text style={styles.sectionTitle}>Mental Health (Optional)</Text>
 
           {[
-            {
-              label: 'Do you have any psychological disorders?',
-              key: 'hasPsychologicalDisorders',
-            },
-            {
-              label: 'Have you experienced depression?',
-              key: 'hasDepressionHistory',
-            },
-            {
-              label: 'Do you take medication?',
-              key: 'takesMedication',
-            },
-            {
-              label: 'Have you been to therapy before?',
-              key: 'hasTherapyHistory',
-            },
-          ].map(({ label, key }) => (
+            { key: 'hasPsychologicalDisorders', label: 'Do you have any psychological disorders?' },
+            { key: 'hasDepressionHistory', label: 'Have you experienced depression?' },
+            { key: 'takesMedication', label: 'Do you take medication?' },
+            { key: 'hasTherapyHistory', label: 'Have you been to therapy before?' },
+          ].map(({ key, label }) => (
             <View key={key} style={styles.switchContainer}>
               <Text style={styles.switchLabel}>{label}</Text>
               <Switch
                 value={formData[key]}
                 onValueChange={(value) => updateFormData(key, value)}
-                trackColor={{ false: '#ccc', true: '#C41E3A' }}
+                trackColor={{ false: '#ccc', true: '#004E64' }}
                 thumbColor={formData[key] ? '#fff' : '#f4f3f4'}
               />
             </View>
@@ -281,7 +223,7 @@ export default function ProfileSetupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F7F9FC',
   },
   scrollContent: {
     padding: 20,
@@ -292,27 +234,29 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#C41E3A',
+    color: '#004E64',
   },
   subtitle: {
     fontSize: 14,
-    color: '#555',
+    color: '#5A5A5E',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginVertical: 10,
-    color: '#8B1538',
+    marginVertical: 12,
+    color: '#004E64',
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#D9E2EC',
   },
   inputIcon: {
     marginRight: 8,
@@ -321,14 +265,17 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 44,
     fontSize: 16,
+    color: '#1C1C1E',
   },
   pickerWrapper: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#D9E2EC',
   },
   picker: {
     flex: 1,
@@ -342,22 +289,23 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   switchLabel: {
-    fontSize: 16,
+    fontSize: 15,
     flex: 1,
     color: '#333',
+    paddingRight: 10,
   },
   saveButton: {
-    backgroundColor: '#C41E3A',
-    paddingVertical: 14,
-    borderRadius: 10,
+    backgroundColor: '#004E64',
+    paddingVertical: 16,
+    borderRadius: 12,
     marginTop: 20,
     alignItems: 'center',
   },
   saveButtonDisabled: {
-    backgroundColor: '#aaa',
+    backgroundColor: '#A9A9AE',
   },
   saveButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
