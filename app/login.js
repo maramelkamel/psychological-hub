@@ -48,7 +48,7 @@ export default function LoginScreen() {
         if (!profile || !profile.first_name) {
           router.replace('/profile-setup');
         } else {
-          router.replace('/');
+          router.replace('/LoggedInHome');
         }
       }
     } catch (error) {
