@@ -40,6 +40,7 @@ export default function HomeScreen() {
 
       <View style={styles.header}>
         <View style={styles.navbar}>
+          
           <TouchableOpacity style={styles.navItem}>
             <Text style={styles.navText}>Emergency</Text>
           </TouchableOpacity>
