@@ -43,6 +43,15 @@ export default function QuizzesScreen() {
       setLoading(false);
     }
   };
+     const getQuestionCount = (questions) => {
+     try {
+     const parsed = typeof questions === 'string' ? JSON.parse(questions) : questions;
+    return Array.isArray(parsed) ? parsed.length : 0;
+  } catch (error) {
+    return 0;
+  }
+};
+
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -71,7 +80,8 @@ export default function QuizzesScreen() {
   };
 
   const handleQuizStart = (quiz) => {
-    router.push(`/quiz/${quiz.id}`);
+    Alert.alert('Quiz selected', `You tapped quiz: ${quiz.title}`);
+    //router.push(`/quiz/${quiz.id}`);
   };
 
   if (loading) {
@@ -120,7 +130,9 @@ export default function QuizzesScreen() {
               <TouchableOpacity
                 key={quiz.id}
                 style={styles.quizCard}
-                onPress={() => handleQuizStart(quiz)}
+                //onPress={() => handleQuizStart(quiz)}
+                onPress={() => Alert.alert('Quiz selected', `You tapped quiz: ${quiz.title}`)}
+
               >
                 <View style={styles.quizHeader}>
                   <View style={[styles.quizIcon, { backgroundColor: getCategoryColor(quiz.category) }]}>
@@ -135,7 +147,8 @@ export default function QuizzesScreen() {
                 <Text style={styles.quizDescription}>{quiz.description}</Text>
                 <View style={styles.quizFooter}>
                   <Text style={styles.quizDuration}>
-                    {quiz.questions ? JSON.parse(quiz.questions).length : 0} questions
+                    {getQuestionCount(quiz.questions)} questions
+
                   </Text>
                   <TouchableOpacity style={[styles.startButton, { backgroundColor: getCategoryColor(quiz.category) }]}>
                     <Text style={styles.startButtonText}>Start Assessment</Text>
