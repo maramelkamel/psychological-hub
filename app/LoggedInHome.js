@@ -141,18 +141,26 @@ export default function LoggedInHome() {
 
       {/* Navigation Bar */}
       <View style={styles.navbar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="call-outline" size={18} color="#004E64" />
-          <Text style={styles.navText}>Emergency</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="information-circle-outline" size={18} color="#004E64" />
-          <Text style={styles.navText}>About</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="document-text-outline" size={18} color="#004E64" />
-          <Text style={styles.navText}>Details</Text>
-        </TouchableOpacity>
+       <Link href="/emergency" asChild>
+  <TouchableOpacity style={styles.navItem}>
+    <Ionicons name="call-outline" size={18} color="#004E64" />
+    <Text style={styles.navText}>Emergency</Text>
+  </TouchableOpacity>
+</Link>
+
+<Link href="/about" asChild>
+  <TouchableOpacity style={styles.navItem}>
+    <Ionicons name="information-circle-outline" size={18} color="#004E64" />
+    <Text style={styles.navText}>About</Text>
+          </TouchableOpacity>
+        </Link>
+
+        <Link href="/details" asChild>
+          <TouchableOpacity style={styles.navItem}>
+            <Ionicons name="document-text-outline" size={18} color="#004E64" />
+            <Text style={styles.navText}>Details</Text>
+          </TouchableOpacity>
+        </Link>
         <Link href="/profile" asChild>
           <TouchableOpacity style={styles.navItem}>
             <Ionicons name="person-outline" size={18} color="#004E64" />
