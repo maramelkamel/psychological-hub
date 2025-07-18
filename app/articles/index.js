@@ -2,17 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Alert,
-  Dimensions,
-  Image,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Dimensions,
+    Image,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { supabase } from '../services/supabase';
+import { supabase } from '../../services/supabase';
 
 const { width } = Dimensions.get('window');
 
@@ -121,7 +121,7 @@ export default function ArticlesScreen() {
           ) : (
             <View style={styles.articlesGrid}>
               {articles.map((article) => (
-                <Link key={article.id} href={`/article/${article.id}`} asChild>
+                <Link key={article.id} href={`/articles/${article.id}`} asChild>
                   <TouchableOpacity style={styles.articleCard}>
                     <View style={styles.articleImageContainer}>
                       {article.image_url ? (
