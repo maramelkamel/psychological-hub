@@ -118,6 +118,17 @@ export default function LoggedInHome() {
       route: '/profile',
       color: '#607D8B',
     },
+    // 🔥 ADMIN ONLY CARD
+  ...(profile?.role === 'admin'
+    ? [{
+        title: 'Dashboard',
+        icon: 'grid-outline',
+        description: 'Admin controls and stats',
+        route: '/admin',
+        color: '#F44336',
+      }]
+    : []),
+
   ];
 
   return (
