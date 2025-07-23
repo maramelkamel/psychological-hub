@@ -130,8 +130,10 @@ export default function QuizzesScreen() {
               <TouchableOpacity
                 key={quiz.id}
                 style={styles.quizCard}
-                //onPress={() => handleQuizStart(quiz)}
-                onPress={() => Alert.alert('Quiz selected', `You tapped quiz: ${quiz.title}`)}
+                
+                onPress={() => router.push(`/quizzes/${quiz.id}`)}
+
+                
 
               >
                 <View style={styles.quizHeader}>
