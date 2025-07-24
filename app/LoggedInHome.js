@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { supabase } from '../services/supabase';
 
+
 const { width } = Dimensions.get('window');
 
 export default function LoggedInHome() {
