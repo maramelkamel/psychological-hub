@@ -9,10 +9,25 @@ export default function QuizStart() {
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userId, setUserId] = useState(null);
   const [page, setPage] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [score, setScore] = useState(null);
   const [resultMsg, setResultMsg] = useState('');
+  
+  useEffect(() => {
+  const getUser = async () => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error('Error fetching user:', error.message);
+    } else {
+      setUserId(user.id);
+    }
+  };
+
+  getUser();
+}, []);
 
   useEffect(() => {
     async function fetchQuiz() {

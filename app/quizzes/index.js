@@ -80,8 +80,7 @@ export default function QuizzesScreen() {
   };
 
   const handleQuizStart = (quiz) => {
-    Alert.alert('Quiz selected', `You tapped quiz: ${quiz.title}`);
-    //router.push(`/quiz/${quiz.id}`);
+    router.push(`/quizzes/${quiz.id}`);
   };
 
   if (loading) {
