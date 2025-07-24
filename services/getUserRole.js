@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 
+
 export const getUserRole = async (userId) => {
   if (!userId) return null;
 
@@ -16,3 +17,5 @@ export const getUserRole = async (userId) => {
 
   return data.role;
 };
+
+

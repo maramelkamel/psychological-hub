@@ -1,4 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
+import { getUserRole } from '../services/getUserRole';
+
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -23,27 +25,41 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
-    }
+  if (!email || !password) {
+    Alert.alert('Error', 'Please fill in all fields');
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ 
-        email: email.trim(), 
-        password 
-      });
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ 
+      email: email.trim(), 
+      password 
+    });
 
-      if (error) {
-        Alert.alert('Login Error', error.message);
+    if (error) {
+      Alert.alert('Login Error', error.message);
+    } else {
+      const userId = data.user.id;
+
+      // Check if user is admin
+      const role = await getUserRole(userId);
+      console.log("✅ Role received:", role);
+
+
+      if (role === 'admin') {
+        router.replace('/admin'); // Redirect to admin page
+
       } else {
         const { data: profile } = await supabase
           .from('user_profiles')
           .select('*')
-          .eq('id', data.user.id)
-          .single();
+          .eq('id', userId)
+          .maybeSingle(); // safer than .single()
+          
+          console.log("Role fetch result:", { data, error });
+
 
         if (!profile || !profile.first_name) {
           router.replace('/profile-setup');
@@ -51,12 +67,14 @@ export default function LoginScreen() {
           router.replace('/LoggedInHome');
         }
       }
-    } catch (error) {
-      Alert.alert('Error', 'An unexpected error occurred');
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    Alert.alert('Error', 'An unexpected error occurred');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <KeyboardAvoidingView 
