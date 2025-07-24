@@ -1,15 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Alert } from 'react-native';
+
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Alert,
   Dimensions,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { supabase } from '../../services/supabase';
 

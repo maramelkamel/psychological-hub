@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Alert } from 'react-native';
+
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   ScrollView,
   StatusBar,
@@ -48,7 +49,7 @@ export default function QuizDetail() {
   }, [id]);
 
   const handleStart = () => {
-    router.push(`/quizzes/[id]/${id}/start`);
+    router.push(`/quizzes/${id}/start`);
   };
 
   const handleBack = () => {

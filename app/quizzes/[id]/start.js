@@ -1,5 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
+
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../../../services/supabase';
 
@@ -14,7 +16,7 @@ export default function QuizStart() {
   const [answers, setAnswers] = useState([]);
   const [score, setScore] = useState(null);
   const [resultMsg, setResultMsg] = useState('');
-  
+
   useEffect(() => {
   const getUser = async () => {
     const { data: { user }, error } = await supabase.auth.getUser();
@@ -52,13 +54,48 @@ export default function QuizStart() {
     else finishQuiz([...answers, val]);
   };
 
-  const finishQuiz = (allAnswers) => {
-    const total = allAnswers.reduce((a, b) => a + b, 0);
-    setScore(total);
-    // Decide category based on scoring_rules:
-    const rule = Object.values(quiz.scoring_rules).find(r => total >= r.min && total <= r.max);
-    setResultMsg(rule ? rule.message : 'Result unavailable');
-  };
+  const finishQuiz = async (allAnswers) => {
+  const total = allAnswers.reduce((a, b) => a + b, 0);
+  setScore(total);
+
+  // Find scoring rule for total score
+  const rule = Object.values(quiz.scoring_rules).find(r => total >= r.min && total <= r.max);
+
+  setResultMsg(rule ? rule.message : 'Result unavailable');
+
+  // Prepare answers array for saving
+  const answersToSave = quiz.questions.map((q, idx) => ({
+    question: q.question,
+    selectedOptionIndex: allAnswers[idx],
+    selectedOption: q.options[allAnswers[idx]],
+  }));
+
+  try {
+    // Insert into quiz_results table
+    const { error } = await supabase.from('quiz_results').insert([
+      {
+        quiz_id: quiz.id,
+        user_id: userId,               // make sure userId is in your component state
+        answers: answersToSave,
+        score: total,
+        result_category: rule?.category || null,
+        recommendations: rule?.recommendations || null,
+        workshop_suggestions: rule?.workshops || null,
+      }
+    ]);
+
+    if (error) {
+      console.error('Error inserting quiz result:', error);
+      Alert.alert('Error', 'Failed to save your quiz results.');
+    } else {
+      Alert.alert('Success', 'Your quiz results have been saved!');
+    }
+  } catch (e) {
+    console.error('Unexpected error:', e);
+    Alert.alert('Error', 'An unexpected error occurred.');
+  }
+};
+
 
   if (loading) return (
     <View style={styles.center}><ActivityIndicator /><Text>Loading quiz...</Text></View>
