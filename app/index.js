@@ -8,21 +8,30 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { getUserRole } from '../services/getUserRole';
 import { supabase } from '../services/supabase';
 
 const { width, height } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const [user, setUser] = useState(null);
+  const [role, setRole] = useState(null); // new state for role
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      if (currentUser) {
+        // Fetch role from your admin_users table
+        const userRole = await getUserRole(currentUser.id);
+        setRole(userRole); // e.g., 'admin', 'counselor', null, etc.
+      }
+
       setLoading(false);
     };
-
     checkUser();
   }, []);
 
@@ -89,7 +98,7 @@ export default function HomeScreen() {
 
         {user && (
           <Text style={{ color: '#004E64', marginTop: 20 }}>
-            Logged in as: {user.email}
+            Logged in as: {user.email} ({role || 'User'})
           </Text>
         )}
       </View>
