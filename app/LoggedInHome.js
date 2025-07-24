@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
+import { Alert } from 'react-native';
+
 import { useEffect, useState } from 'react';
 import {
-  Alert,
   Dimensions,
   ScrollView,
   StatusBar,
@@ -22,33 +23,48 @@ export default function LoggedInHome() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-          router.replace('/');
-          return;
-        }
+    
+  const checkAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
 
-        setUser(session.user);
-
-        const { data: userProfile } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        setProfile(userProfile);
-      } catch (error) {
-        console.error('Error checking auth:', error);
-      } finally {
-        setLoading(false);
+      if (!session) {
+        router.replace('/');
+        return;
       }
-    };
 
-    checkAuth();
-  }, []);
+      setUser(session.user);
+
+      // Fetch from user_profiles
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      // Fetch from admin_users
+      const { data: adminData } = await supabase
+        .from('admin_users')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .single();
+
+      // Combine both
+      setProfile({
+        ...userProfile,
+        role: adminData?.role || null
+      });
+
+    } catch (error) {
+      console.error('Error checking auth:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  checkAuth();
+}, []);
+
 
   const handleLogout = async () => {
     Alert.alert(
@@ -75,6 +91,7 @@ export default function LoggedInHome() {
     );
   }
 
+Alert.alert('Role', profile?.role ?? 'No role');
   const menuItems = [
     {
       title: 'Send Message',
