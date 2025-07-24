@@ -42,19 +42,7 @@ export default function LoggedInHome() {
         .select('*')
         .eq('id', session.user.id)
         .single();
-
-      // Fetch from admin_users
-      const { data: adminData } = await supabase
-        .from('admin_users')
-        .select('role')
-        .eq('user_id', session.user.id)
-        .single();
-
-      // Combine both
-      setProfile({
-        ...userProfile,
-        role: adminData?.role || null
-      });
+;
 
     } catch (error) {
       console.error('Error checking auth:', error);
@@ -92,7 +80,7 @@ export default function LoggedInHome() {
     );
   }
 
-Alert.alert('Role', profile?.role ?? 'No role');
+
   const menuItems = [
     {
       title: 'Send Message',
@@ -136,16 +124,6 @@ Alert.alert('Role', profile?.role ?? 'No role');
       route: '/profile',
       color: '#607D8B',
     },
-    // 🔥 ADMIN ONLY CARD
-  ...(profile?.role === 'admin'
-    ? [{
-        title: 'Dashboard',
-        icon: 'grid-outline',
-        description: 'Admin controls and stats',
-        route: '/admin',
-        color: '#F44336',
-      }]
-    : []),
 
   ];
 
