@@ -134,7 +134,7 @@ export default function MessagesScreen() {
 
   <TouchableOpacity
     style={styles.actionCard}
-    onPress={() => router.push('/about')}
+    onPress={() => router.push('/HR Support')}
   >
     <Ionicons name="business-outline" size={24} color="#004E64" />
     <Text style={styles.actionText}>HR Support</Text>

@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Dimensions,
@@ -16,6 +16,7 @@ export default function HomeScreen() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null); // new state for role
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -48,34 +49,34 @@ export default function HomeScreen() {
 
       
       <View style={styles.header}>
-        <View style={styles.navbar}>
-          
+  <View style={styles.navbar}>
 
+    <Link href="/emergency" asChild>
+      <TouchableOpacity style={styles.navItem}>
+        <Text style={styles.navText}>Emergency</Text>
+      </TouchableOpacity>
+    </Link>
 
-          
-          <TouchableOpacity style={styles.navItem}>
-            <Text style={styles.navText}>Emergency</Text>
-          </TouchableOpacity> 
+    <Link href="/about" asChild>
+      <TouchableOpacity style={styles.navItem}>
+        <Text style={styles.navText}>About</Text>
+      </TouchableOpacity>
+    </Link>
 
-         
-          <TouchableOpacity style={styles.navItem}>
-            <Text style={styles.navText}>About</Text>
-          </TouchableOpacity> 
+    <Link href="/details" asChild>
+      <TouchableOpacity style={styles.navItem}>
+        <Text style={styles.navText}>Details</Text>
+      </TouchableOpacity>
+    </Link>
 
-         
-          <TouchableOpacity style={styles.navItem}>
-            <Text style={styles.navText}>Details</Text>
-          </TouchableOpacity> 
+    <Link href="/HR Support" asChild>
+      <TouchableOpacity style={styles.navItem}>
+        <Text style={styles.navText}>HR Support</Text>
+      </TouchableOpacity>
+    </Link>
 
-
-          <Link href="/profile-setup" asChild>
-            <TouchableOpacity style={styles.navItem}>
-              <Text style={styles.navText}>Profile</Text>
-            </TouchableOpacity>
-          </Link>
-
-        
-      </View></View>
+  </View>
+</View>
 
       <View style={styles.content}>
         <View style={styles.logoContainer}>

@@ -42,6 +42,7 @@ export default function LoggedInHome() {
         .select('*')
         .eq('id', session.user.id)
         .single();
+        setProfile(userProfile); 
 ;
 
     } catch (error) {
@@ -148,7 +149,9 @@ export default function LoggedInHome() {
       </View>
 
       {/* Navigation Bar */}
+
       <View style={styles.navbar}>
+        
        <Link href="/emergency" asChild>
   <TouchableOpacity style={styles.navItem}>
     <Ionicons name="call-outline" size={18} color="#004E64" />
