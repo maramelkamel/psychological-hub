@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { getUserRole } from '../services/getUserRole';
 import { supabase } from '../services/supabase';
 
 const { width, height } = Dimensions.get('window');
@@ -47,24 +46,34 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
 
-      <View style={styles.header}>
+      
         <View style={styles.navbar}>
           
+
+
+          <Link href="/emergency" asChild>
           <TouchableOpacity style={styles.navItem}>
             <Text style={styles.navText}>Emergency</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> </Link>
+
+         <Link href="/about" asChild>
           <TouchableOpacity style={styles.navItem}>
             <Text style={styles.navText}>About</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> </Link>
+
+         <Link href="/details" asChild>
           <TouchableOpacity style={styles.navItem}>
             <Text style={styles.navText}>Details</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> </Link>
+
+
           <Link href="/profile-setup" asChild>
             <TouchableOpacity style={styles.navItem}>
               <Text style={styles.navText}>Profile</Text>
             </TouchableOpacity>
           </Link>
-        </View>
+
+        
       </View>
 
       <View style={styles.content}>

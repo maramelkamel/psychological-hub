@@ -125,6 +125,7 @@ export default function LoggedInHome() {
       color: '#607D8B',
     },
 
+
   ];
 
   return (
