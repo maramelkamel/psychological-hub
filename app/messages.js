@@ -1,17 +1,19 @@
 
 import { Ionicons } from '@expo/vector-icons';
+
+
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-    Alert,
-    Modal,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { supabase } from '../services/supabase';
 
@@ -122,19 +124,31 @@ export default function MessagesScreen() {
 
       {/* Quick Actions */}
       <View style={styles.quickActions}>
-        <TouchableOpacity style={styles.actionCard}>
-          <Ionicons name="people-outline" size={24} color="#004E64" />
-          <Text style={styles.actionText}>Contact Counselor</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionCard}>
-          <Ionicons name="business-outline" size={24} color="#004E64" />
-          <Text style={styles.actionText}>HR Support</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionCard}>
-          <Ionicons name="call-outline" size={24} color="#004E64" />
-          <Text style={styles.actionText}>Emergency</Text>
-        </TouchableOpacity>
-      </View>
+  <TouchableOpacity
+    style={styles.actionCard}
+    onPress={() => router.push('/details')}
+  >
+    <Ionicons name="people-outline" size={24} color="#004E64" />
+    <Text style={styles.actionText}>Contact Counselor</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={styles.actionCard}
+    onPress={() => router.push('/about')}
+  >
+    <Ionicons name="business-outline" size={24} color="#004E64" />
+    <Text style={styles.actionText}>HR Support</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={styles.actionCard}
+    onPress={() => router.push('/emergency')}
+  >
+    <Ionicons name="call-outline" size={24} color="#004E64" />
+    <Text style={styles.actionText}>Emergency</Text>
+  </TouchableOpacity>
+</View>
+
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Messages List */}

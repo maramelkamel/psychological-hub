@@ -47,24 +47,25 @@ export default function HomeScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
 
       
+      <View style={styles.header}>
         <View style={styles.navbar}>
           
 
 
-          <Link href="/emergency" asChild>
+          
           <TouchableOpacity style={styles.navItem}>
             <Text style={styles.navText}>Emergency</Text>
-          </TouchableOpacity> </Link>
+          </TouchableOpacity> 
 
-         <Link href="/about" asChild>
+         
           <TouchableOpacity style={styles.navItem}>
             <Text style={styles.navText}>About</Text>
-          </TouchableOpacity> </Link>
+          </TouchableOpacity> 
 
-         <Link href="/details" asChild>
+         
           <TouchableOpacity style={styles.navItem}>
             <Text style={styles.navText}>Details</Text>
-          </TouchableOpacity> </Link>
+          </TouchableOpacity> 
 
 
           <Link href="/profile-setup" asChild>
@@ -74,7 +75,7 @@ export default function HomeScreen() {
           </Link>
 
         
-      </View>
+      </View></View>
 
       <View style={styles.content}>
         <View style={styles.logoContainer}>
