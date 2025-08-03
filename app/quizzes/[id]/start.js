@@ -41,7 +41,9 @@ export default function QuizStart() {
         .single();
 
       if (error) setError('Failed to load quiz');
-      else setQuiz(data);
+      else {
+        console.log('Fetched quiz:', data); 
+        setQuiz(data);}
       setLoading(false);
     }
     if (id) fetchQuiz();
@@ -116,6 +118,7 @@ export default function QuizStart() {
   }
 
   const q = quiz.questions[page];
+  console.log('Current question:', q); 
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -135,7 +138,12 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   container: { padding: 20 },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
-  question: { fontSize: 18, marginBottom: 20 },
+  question: {
+  fontSize: 18,
+  marginBottom: 20,
+  color: '#E0F2F1',  // dark color to ensure visibility on light background
+  textAlign: 'center',
+},
   option: {
     backgroundColor: '#E0F2F1',
     padding: 15,
