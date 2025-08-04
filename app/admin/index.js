@@ -53,6 +53,9 @@ export default function AdminDashboard() {
   
   // Appointments states
   const [appointments, setAppointments] = useState([]);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [adminNotes, setAdminNotes] = useState('');
   
   const router = useRouter();
 
@@ -330,6 +333,51 @@ export default function AdminDashboard() {
     }
   };
 
+  const updateAppointmentStatus = async (appointmentId, newStatus, notes = '') => {
+    try {
+      const updateData = {
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Add notes if provided
+      if (notes.trim()) {
+        updateData.notes = notes.trim();
+      }
+
+      // If confirming, assign counselor (admin)
+      if (newStatus === 'confirmed') {
+        updateData.counselor_id = user.id;
+      }
+
+      const { error } = await supabase
+        .from('appointments')
+        .update(updateData)
+        .eq('id', appointmentId);
+
+      if (error) {
+        Alert.alert('Error', error.message);
+      } else {
+        Alert.alert('Success', `Appointment ${newStatus} successfully`);
+        fetchAppointments();
+        setShowAppointmentModal(false);
+        setAdminNotes('');
+      }
+    } catch (error) {
+      Alert.alert('Error', `Failed to ${newStatus} appointment`);
+    }
+  };
+
+  const getNextAvailableStatus = (currentStatus) => {
+    const statusFlow = {
+      'scheduled': ['confirmed', 'cancelled'],
+      'confirmed': ['completed', 'cancelled'],
+      'cancelled': ['scheduled'], // Allow rescheduling
+      'completed': [] // Final state
+    };
+    return statusFlow[currentStatus] || [];
+  };
+
   // Utility functions
   const getCategoryColor = (category) => {
     const colors = {
@@ -376,6 +424,16 @@ export default function AdminDashboard() {
       pending: '#9C27B0',
     };
     return colors[status] || '#607D8B';
+  };
+
+  const getStatusIcon = (status) => {
+    const icons = {
+      scheduled: 'time-outline',
+      confirmed: 'checkmark-circle-outline',
+      cancelled: 'close-circle-outline',
+      completed: 'checkmark-done-outline',
+    };
+    return icons[status] || 'help-circle-outline';
   };
 
   if (loading) {
@@ -546,7 +604,7 @@ export default function AdminDashboard() {
         {/* Appointments Tab */}
         {activeTab === 'appointments' && (
           <View style={styles.tabContent}>
-            <Text style={styles.sectionTitle}>Appointments</Text>
+            <Text style={styles.sectionTitle}>Appointments Management</Text>
             {appointments.map((appointment) => (
               <View key={appointment.id} style={styles.appointmentCard}>
                 <View style={styles.appointmentHeader}>
@@ -562,24 +620,60 @@ export default function AdminDashboard() {
                     </Text>
                   </View>
                   <View style={[styles.statusBadge, { backgroundColor: getStatusColor(appointment.status) }]}>
+                    <Ionicons name={getStatusIcon(appointment.status)} size={14} color="#FFF" />
                     <Text style={styles.statusText}>{appointment.status}</Text>
                   </View>
                 </View>
 
                 <View style={styles.appointmentDetails}>
                   <Text style={styles.appointmentDate}>
-                    {formatDateTime(appointment.appointment_date)}
+                    📅 {formatDateTime(appointment.appointment_date)}
                   </Text>
                   <Text style={styles.appointmentType}>
-                    Type: {appointment.type?.replace('_', ' ').toUpperCase()}
+                    🎯 Type: {appointment.type?.replace('_', ' ').toUpperCase()}
                   </Text>
                   <Text style={styles.appointmentDuration}>
-                    Duration: {appointment.duration_minutes} minutes
+                    ⏱️ Duration: {appointment.duration_minutes} minutes
                   </Text>
                   {appointment.notes && (
                     <Text style={styles.appointmentNotes}>
-                      Notes: {appointment.notes}
+                      📝 Notes: {appointment.notes}
                     </Text>
+                  )}
+                </View>
+
+                {/* Status Action Buttons */}
+                <View style={styles.appointmentActions}>
+                  {getNextAvailableStatus(appointment.status).map((status) => (
+                    <TouchableOpacity
+                      key={status}
+                      style={[
+                        styles.statusActionButton,
+                        { backgroundColor: getStatusColor(status) }
+                      ]}
+                      onPress={() => {
+                        setSelectedAppointment(appointment);
+                        setShowAppointmentModal(true);
+                      }}
+                    >
+                      <Ionicons name={getStatusIcon(status)} size={16} color="#FFF" />
+                      <Text style={styles.statusActionText}>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                  
+                  {appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
+                    <TouchableOpacity
+                      style={styles.manageButton}
+                      onPress={() => {
+                        setSelectedAppointment(appointment);
+                        setShowAppointmentModal(true);
+                      }}
+                    >
+                      <Ionicons name="settings-outline" size={16} color="#004E64" />
+                      <Text style={styles.manageButtonText}>Manage</Text>
+                    </TouchableOpacity>
                   )}
                 </View>
               </View>
@@ -792,6 +886,186 @@ export default function AdminDashboard() {
           </View>
         </View>
       </Modal>
+
+      {/* Appointment Management Modal */}
+      <Modal
+        visible={showAppointmentModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAppointmentModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Manage Appointment</Text>
+            {selectedAppointment && (
+              <>
+                <View style={styles.appointmentDetailsModal}>
+                  <Text style={styles.modalDetailLabel}>Patient:</Text>
+                  <Text style={styles.modalDetailText}>
+                    {selectedAppointment.user_profiles?.first_name} {selectedAppointment.user_profiles?.last_name}
+                  </Text>
+                  <Text style={styles.modalDetailText}>
+                    {selectedAppointment.user_profiles?.email}
+                  </Text>
+                  <Text style={styles.modalDetailText}>
+                    {selectedAppointment.user_profiles?.position} - {selectedAppointment.user_profiles?.department}
+                  </Text>
+                  
+                  <Text style={styles.modalDetailLabel}>Current Status:</Text>
+                  <View style={[styles.currentStatusBadge, { backgroundColor: getStatusColor(selectedAppointment.status) }]}>
+                    <Ionicons name={getStatusIcon(selectedAppointment.status)} size={16} color="#FFF" />
+                    <Text style={styles.currentStatusText}>{selectedAppointment.status}</Text>
+                  </View>
+                  
+                  <Text style={styles.modalDetailLabel}>Appointment Details:</Text>
+                  <Text style={styles.modalDetailText}>
+                    📅 {formatDateTime(selectedAppointment.appointment_date)}
+                  </Text>
+                  <Text style={styles.modalDetailText}>
+                    🎯 Type: {selectedAppointment.type?.replace('_', ' ').toUpperCase()}
+                  </Text>
+                  <Text style={styles.modalDetailText}>
+                    ⏱️ Duration: {selectedAppointment.duration_minutes} minutes
+                  </Text>
+                  
+                  {selectedAppointment.notes && (
+                    <>
+                      <Text style={styles.modalDetailLabel}>Current Notes:</Text>
+                      <Text style={styles.modalDetailText}>{selectedAppointment.notes}</Text>
+                    </>
+                  )}
+                </View>
+                
+                <Text style={styles.inputLabel}>Add Admin Notes (Optional):</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  placeholder="Add notes about this appointment..."
+                  value={adminNotes}
+                  onChangeText={setAdminNotes}
+                  multiline
+                  numberOfLines={3}
+                />
+
+                <Text style={styles.inputLabel}>Update Status:</Text>
+                <View style={styles.statusActionsModal}>
+                  {getNextAvailableStatus(selectedAppointment.status).map((status) => (
+                    <TouchableOpacity
+                      key={status}
+                      style={[
+                        styles.statusActionButtonModal,
+                        { backgroundColor: getStatusColor(status) }
+                      ]}
+                      onPress={() => {
+                        Alert.alert(
+                          `${status.charAt(0).toUpperCase() + status.slice(1)} Appointment`,
+                          `Are you sure you want to mark this appointment as ${status}?`,
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                              text: 'Confirm',
+                              onPress: () => updateAppointmentStatus(selectedAppointment.id, status, adminNotes)
+                            }
+                          ]
+                        );
+                      }}
+                    >
+                      <Ionicons name={getStatusIcon(status)} size={18} color="#FFF" />
+                      <Text style={styles.statusActionTextModal}>
+                        Mark as {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Quick Actions */}
+                <View style={styles.quickActionsContainer}>
+                  <Text style={styles.inputLabel}>Quick Actions:</Text>
+                  <View style={styles.quickActions}>
+                    {selectedAppointment.status === 'scheduled' && (
+                      <>
+                        <TouchableOpacity
+                          style={styles.quickActionButton}
+                          onPress={() => {
+                            Alert.alert(
+                              'Confirm Appointment',
+                              'This will confirm the appointment and assign you as the counselor.',
+                              [
+                                { text: 'Cancel', style: 'cancel' },
+                                {
+                                  text: 'Confirm',
+                                  onPress: () => updateAppointmentStatus(selectedAppointment.id, 'confirmed', adminNotes)
+                                }
+                              ]
+                            );
+                          }}
+                        >
+                          <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                          <Text style={styles.quickActionText}>Quick Confirm</Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity
+                          style={styles.quickActionButton}
+                          onPress={() => {
+                            Alert.alert(
+                              'Cancel Appointment',
+                              'Are you sure you want to cancel this appointment?',
+                              [
+                                { text: 'No', style: 'cancel' },
+                                {
+                                  text: 'Yes, Cancel',
+                                  style: 'destructive',
+                                  onPress: () => updateAppointmentStatus(selectedAppointment.id, 'cancelled', adminNotes)
+                                }
+                              ]
+                            );
+                          }}
+                        >
+                          <Ionicons name="close-circle" size={20} color="#F44336" />
+                          <Text style={styles.quickActionText}>Quick Cancel</Text>
+                        </TouchableOpacity>
+                      </>
+                    )}
+                    
+                    {selectedAppointment.status === 'confirmed' && (
+                      <TouchableOpacity
+                        style={styles.quickActionButton}
+                        onPress={() => {
+                          Alert.alert(
+                            'Complete Appointment',
+                            'Mark this appointment as completed?',
+                            [
+                              { text: 'Cancel', style: 'cancel' },
+                              {
+                                text: 'Complete',
+                                onPress: () => updateAppointmentStatus(selectedAppointment.id, 'completed', adminNotes)
+                              }
+                            ]
+                          );
+                        }}
+                      >
+                        <Ionicons name="checkmark-done-circle" size={20} color="#2196F3" />
+                        <Text style={styles.quickActionText}>Mark Complete</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              </>
+            )}
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => {
+                  setShowAppointmentModal(false);
+                  setAdminNotes('');
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -921,7 +1195,8 @@ const styles = StyleSheet.create({
   },
   workshopCategory: {
     fontSize: 14,
-    color: '#666',  },
+    color: '#666',
+  },
   workshopDate: {
     fontSize: 12,
     color: '#888',
@@ -1019,65 +1294,117 @@ const styles = StyleSheet.create({
   },
   appointmentCard: {
     backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 12,
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 15,
     borderLeftWidth: 5,
     borderLeftColor: '#004E64',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   appointmentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 10,
   },
   appointmentInfo: {
     flex: 1,
   },
   appointmentUser: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#222',
+    marginBottom: 2,
   },
   appointmentEmail: {
     fontSize: 13,
     color: '#555',
+    marginBottom: 2,
   },
   appointmentDepartment: {
     fontSize: 12,
     color: '#888',
   },
   statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    justifyContent: 'center',
   },
   statusText: {
     fontSize: 12,
     color: '#FFF',
     fontWeight: '600',
+    marginLeft: 4,
   },
   appointmentDetails: {
-    marginTop: 10,
+    marginBottom: 15,
   },
   appointmentDate: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#444',
     marginBottom: 4,
+    fontWeight: '500',
   },
   appointmentType: {
     fontSize: 13,
     color: '#666',
+    marginBottom: 2,
   },
   appointmentDuration: {
     fontSize: 13,
     color: '#666',
+    marginBottom: 2,
   },
   appointmentNotes: {
     fontSize: 13,
     color: '#888',
     fontStyle: 'italic',
-    marginTop: 4,
+    marginTop: 6,
+    backgroundColor: '#F5F5F5',
+    padding: 8,
+    borderRadius: 8,
+  },
+  appointmentActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  statusActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  statusActionText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  manageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#004E64',
+  },
+  manageButtonText: {
+    color: '#004E64',
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 4,
   },
   modalOverlay: {
     flex: 1,
@@ -1094,14 +1421,15 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 15,
     color: '#004E64',
   },
   input: {
     backgroundColor: '#F1F1F1',
     borderRadius: 10,
-    padding: 10,
+    padding: 12,
     marginBottom: 10,
+    fontSize: 14,
   },
   textArea: {
     minHeight: 80,
@@ -1113,6 +1441,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontWeight: '600',
     marginBottom: 6,
+    color: '#333',
   },
   categoryOption: {
     paddingVertical: 6,
@@ -1139,25 +1468,31 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: '#004E64',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 10,
+    flex: 1,
+    marginRight: 10,
   },
   submitButtonText: {
     color: '#FFF',
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   cancelButton: {
     backgroundColor: '#DDD',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 10,
+    flex: 1,
   },
   cancelButtonText: {
     color: '#333',
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   registrationsList: {
     marginTop: 10,
+    maxHeight: 300,
   },
   registrationCard: {
     backgroundColor: '#F7F9FC',
@@ -1210,5 +1545,87 @@ const styles = StyleSheet.create({
   messageDetailText: {
     fontSize: 13,
     color: '#555',
+    marginBottom: 2,
+  },
+  // New styles for appointment management modal
+  appointmentDetailsModal: {
+    backgroundColor: '#F7F9FC',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  modalDetailLabel: {
+    fontWeight: '600',
+    marginTop: 10,
+    marginBottom: 5,
+    color: '#333',
+    fontSize: 14,
+  },
+  modalDetailText: {
+    fontSize: 13,
+    color: '#555',
+    marginBottom: 2,
+  },
+  currentStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    alignSelf: 'flex-start',
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  currentStatusText: {
+    fontSize: 13,
+    color: '#FFF',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  statusActionsModal: {
+    marginTop: 10,
+    marginBottom: 15,
+  },
+  statusActionButtonModal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  statusActionTextModal: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  quickActionsContainer: {
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  quickActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  quickActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  quickActionText: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: 6,
+    color: '#333',
   },
 });
