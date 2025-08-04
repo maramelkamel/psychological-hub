@@ -20,30 +20,35 @@ export default function ArticlesScreen() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {
     fetchArticles();
   }, []);
 
-  const fetchArticles = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('articles')
-        .select('*')
-        .eq('is_published', true)
-        .order('created_at', { ascending: false });
+  const fetchArticles = async (category = 'All') => {
+  setLoading(true);
+  try {
+    let query = supabase.from('articles').select('*').eq('is_published', true);
 
-      if (error) {
-        Alert.alert('Error', error.message);
-      } else {
-        setArticles(data || []);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to fetch articles');
-    } finally {
-      setLoading(false);
+    if (category !== 'All') {
+      query = query.eq('category', category.toLowerCase().replace(/ /g, '_'));
     }
-  };
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
+      setArticles(data || []);
+    }
+  } catch (error) {
+    Alert.alert('Error', 'Failed to fetch articles');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -95,19 +100,58 @@ export default function ArticlesScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Categories */}
-        <View style={styles.categoriesSection}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
-            {['All', 'Anxiety', 'Burnout', 'Stress Management', 'Time Management', 'Depression', 'Work Life Balance'].map((category, index) => (
-              <TouchableOpacity key={index} style={[styles.categoryChip, index === 0 && styles.activeCategoryChip]}>
-                <Text style={[styles.categoryText, index === 0 && styles.activeCategoryText]}>
-                  {category}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+        
+
+
+
+      {/* Categories */}
+<View style={styles.categoriesSection}>
+  <Text style={styles.sectionTitle}>Categories</Text>
+
+  {/** Define categories here */}
+  {/** Could also be moved above component if you want */}
+  {(() => {
+    const categories = [
+      'All',
+      'Anxiety',
+      'Burnout',
+      'Stress Management',
+      'Time Management',
+      'Depression',
+      'Work Life Balance'
+    ];
+    
+    return (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
+        {categories.map((category, index) => {
+          const isActive = selectedCategory === category;
+          return (
+            <TouchableOpacity
+              key={index}
+              style={[styles.categoryChip, isActive && styles.activeCategoryChip]}
+              onPress={() => {
+                setSelectedCategory(category);
+                fetchArticles(category);
+              }}
+            >
+              <Text style={[styles.categoryText, isActive && styles.activeCategoryText]}>
+                {category}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    );
+  })()}
+</View>
+
+
+
+
+
+
+
+
 
         {/* Articles Grid */}
         <View style={styles.articlesSection}>
