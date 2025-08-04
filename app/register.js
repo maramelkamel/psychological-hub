@@ -63,7 +63,7 @@ export default function RegisterScreen() {
           [
             {
               text: 'OK',
-              onPress: () => router.replace('/profile-setup'),
+              onPress: () => router.replace('/login'),
             },
           ]
         );

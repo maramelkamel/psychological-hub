@@ -83,7 +83,7 @@ export default function ProfileSetupScreen() {
         Alert.alert('Success!', 'Profile created successfully!', [
           {
             text: 'OK',
-            onPress: () => router.replace('/(tabs)'),
+            onPress: () => router.replace('/LoggedInHome'),
           },
         ]);
       }
