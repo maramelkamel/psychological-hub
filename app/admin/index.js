@@ -154,7 +154,8 @@ export default function AdminDashboard() {
             department
           )
         `)
-        .eq('workshop_id', workshopId);
+        .eq('workshop_id', workshopId)
+        .order('registration_date', { ascending: false });
 
       if (error) {
         Alert.alert('Error', error.message);
@@ -164,6 +165,84 @@ export default function AdminDashboard() {
     } catch (error) {
       Alert.alert('Error', 'Failed to fetch registrations');
     }
+  };
+
+  // NEW FUNCTION: Update registration status
+  const updateRegistrationStatus = async (registrationId, newStatus, notes = '') => {
+    try {
+      console.log('Updating registration:', registrationId, 'to status:', newStatus);
+      
+      const updateData = {
+        status: newStatus,
+      };
+
+      // Add admin notes if provided
+      if (notes.trim()) {
+        updateData.notes = notes.trim();
+      }
+
+      console.log('Update data:', updateData);
+
+      const { data, error } = await supabase
+        .from('workshop_registrations')
+        .update(updateData)
+        .eq('id', registrationId)
+        .select();
+
+      console.log('Update result:', { data, error });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        Alert.alert('Database Error', `${error.message}\n\nCode: ${error.code}\nDetails: ${error.details || 'No additional details'}`);
+        return false;
+      } 
+      
+      if (!data || data.length === 0) {
+        Alert.alert('Warning', 'No rows were updated. The registration might not exist or you might not have permission to update it.');
+        return false;
+      }
+
+      Alert.alert('Success', `Registration ${newStatus} successfully`);
+      // Refresh the registrations list
+      if (selectedWorkshop) {
+        await fetchWorkshopRegistrations(selectedWorkshop.id);
+      }
+      return true;
+    } catch (error) {
+      console.error('Catch error:', error);
+      Alert.alert('Error', `Failed to ${newStatus} registration: ${error.message}`);
+      return false;
+    }
+  };
+
+  // NEW FUNCTION: Get available status transitions
+  const getAvailableStatusTransitions = (currentStatus) => {
+    const transitions = {
+      'pending': ['confirmed', 'cancelled'],
+      'confirmed': ['cancelled', 'pending'], // Allow changing back to pending if needed
+      'cancelled': ['pending', 'confirmed'] // Allow reactivation
+    };
+    return transitions[currentStatus] || [];
+  };
+
+  // NEW FUNCTION: Get registration status color
+  const getRegistrationStatusColor = (status) => {
+    const colors = {
+      pending: '#FF9800',
+      confirmed: '#4CAF50',
+      cancelled: '#F44336',
+    };
+    return colors[status] || '#607D8B';
+  };
+
+  // NEW FUNCTION: Get registration status icon
+  const getRegistrationStatusIcon = (status) => {
+    const icons = {
+      pending: 'time-outline',
+      confirmed: 'checkmark-circle-outline',
+      cancelled: 'close-circle-outline',
+    };
+    return icons[status] || 'help-circle-outline';
   };
 
   const addWorkshop = async () => {
@@ -772,7 +851,7 @@ export default function AdminDashboard() {
         </View>
       </Modal>
 
-      {/* Workshop Registrations Modal */}
+      {/* Workshop Registrations Modal - UPDATED */}
       <Modal
         visible={showRegistrationsModal}
         animationType="slide"
@@ -787,26 +866,68 @@ export default function AdminDashboard() {
             <ScrollView style={styles.registrationsList}>
               {workshopRegistrations.map((registration) => (
                 <View key={registration.id} style={styles.registrationCard}>
-                  <Text style={styles.registrationName}>
-                    {registration.user_profiles?.first_name} {registration.user_profiles?.last_name}
-                  </Text>
-                  <Text style={styles.registrationEmail}>
-                    {registration.user_profiles?.email}
-                  </Text>
-                  <Text style={styles.registrationDepartment}>
-                    {registration.user_profiles?.position} - {registration.user_profiles?.department}
-                  </Text>
-                  <Text style={styles.registrationDate}>
-                    Registered: {formatDate(registration.registration_date)}
-                  </Text>
-                  <View style={[styles.registrationStatus, { backgroundColor: getStatusColor(registration.status) }]}>
-                    <Text style={styles.registrationStatusText}>{registration.status}</Text>
+                  <View style={styles.registrationHeader}>
+                    <View style={styles.registrationUserInfo}>
+                      <Text style={styles.registrationName}>
+                        {registration.user_profiles?.first_name} {registration.user_profiles?.last_name}
+                      </Text>
+                      <Text style={styles.registrationEmail}>
+                        {registration.user_profiles?.email}
+                      </Text>
+                      <Text style={styles.registrationDepartment}>
+                        {registration.user_profiles?.position} - {registration.user_profiles?.department}
+                      </Text>
+                      <Text style={styles.registrationDate}>
+                        Registered: {formatDate(registration.registration_date)}
+                      </Text>
+                    </View>
+                    <View style={[
+                      styles.registrationStatusBadge, 
+                      { backgroundColor: getRegistrationStatusColor(registration.status) }
+                    ]}>
+                      <Ionicons 
+                        name={getRegistrationStatusIcon(registration.status)} 
+                        size={14} 
+                        color="#FFF" 
+                      />
+                      <Text style={styles.registrationStatusText}>{registration.status}</Text>
+                    </View>
                   </View>
+                  
                   {registration.notes && (
                     <Text style={styles.registrationNotes}>Notes: {registration.notes}</Text>
                   )}
+
+                  {/* Registration Status Actions */}
+                  <View style={styles.registrationActions}>
+                    {getAvailableStatusTransitions(registration.status).map((newStatus) => (
+                      <TouchableOpacity
+                        key={newStatus}
+                        style={[
+                          styles.registrationActionButton,
+                          { backgroundColor: getRegistrationStatusColor(newStatus) }
+                        ]}
+                        >
+                        <Ionicons 
+                          name={getRegistrationStatusIcon(newStatus)} 
+                          size={14} 
+                          color="#FFF" 
+                        />
+                        <Text style={styles.registrationActionText}>
+                          {newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                 </View>
               ))}
+              
+              {workshopRegistrations.length === 0 && (
+                <View style={styles.emptyState}>
+                  <Ionicons name="people-outline" size={48} color="#CCC" />
+                  <Text style={styles.emptyStateText}>No registrations yet</Text>
+                </View>
+              )}
             </ScrollView>
             <TouchableOpacity
               style={styles.cancelButton}
@@ -1492,47 +1613,99 @@ const styles = StyleSheet.create({
   },
   registrationsList: {
     marginTop: 10,
-    maxHeight: 300,
+    maxHeight: 400,
   },
   registrationCard: {
     backgroundColor: '#F7F9FC',
-    padding: 12,
-    borderRadius: 10,
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  // NEW STYLES FOR REGISTRATION MANAGEMENT
+  registrationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 10,
+  },
+  registrationUserInfo: {
+    flex: 1,
+    marginRight: 10,
   },
   registrationName: {
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 15,
+    color: '#222',
+    marginBottom: 2,
   },
   registrationEmail: {
     fontSize: 13,
     color: '#555',
+    marginBottom: 2,
   },
   registrationDepartment: {
     fontSize: 12,
     color: '#777',
+    marginBottom: 4,
   },
   registrationDate: {
     fontSize: 12,
     color: '#888',
-    marginTop: 5,
   },
-  registrationStatus: {
-    marginTop: 5,
-    padding: 5,
-    borderRadius: 8,
+  registrationStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
     alignSelf: 'flex-start',
   },
   registrationStatusText: {
     color: '#FFF',
     fontSize: 12,
     fontWeight: 'bold',
+    marginLeft: 4,
   },
   registrationNotes: {
-    marginTop: 5,
+    marginTop: 8,
     fontSize: 12,
     fontStyle: 'italic',
     color: '#666',
+    backgroundColor: '#F0F0F0',
+    padding: 8,
+    borderRadius: 6,
+  },
+  registrationActions: {
+    flexDirection: 'row',
+    marginTop: 12,
+    gap: 8,
+  },
+  registrationActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  registrationActionText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#999',
+    marginTop: 10,
   },
   messageDetails: {
     marginBottom: 15,
@@ -1547,7 +1720,7 @@ const styles = StyleSheet.create({
     color: '#555',
     marginBottom: 2,
   },
-  // New styles for appointment management modal
+  // Appointment modal styles
   appointmentDetailsModal: {
     backgroundColor: '#F7F9FC',
     padding: 15,
